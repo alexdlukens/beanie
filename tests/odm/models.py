@@ -28,6 +28,7 @@ import pymongo
 from bson import Regex
 from pydantic import (
     UUID4,
+    AliasChoices,
     BaseModel,
     ConfigDict,
     EmailStr,
@@ -1177,3 +1178,7 @@ class BsonRegexDoc(Document):
 
 class NativeRegexDoc(Document):
     regex: Optional[re.Pattern]
+
+
+class DocumentWithAliasChoicesField(Document):
+    field_1: str = Field(alias=AliasChoices("field_1", "field-1"))

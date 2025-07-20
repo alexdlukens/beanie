@@ -4,6 +4,7 @@ from pymongo.errors import DuplicateKeyError
 from beanie.odm.fields import PydanticObjectId
 from tests.odm.models import (
     DocumentTestModel,
+    DocumentWithAliasChoicesField,
     DocumentWithKeepNullsFalse,
     ModelWithOptionalField,
 )
@@ -118,3 +119,22 @@ async def test_insert_many_keep_nulls_false():
         "_id": new_docs[1].id,
         "m": {"i": 11},
     }
+
+
+async def test_create_with_aliases():
+    doc = DocumentWithAliasChoicesField(field_1="test_value1")
+    await doc.insert()
+    fetched_doc = await DocumentWithAliasChoicesField.get(doc.id)
+    assert fetched_doc is not None
+    assert fetched_doc.field_1 == "test_value1"
+
+    # Test alias functionality
+    doc_with_alias = DocumentWithAliasChoicesField.model_validate(
+        ({"field-1": "test_value2"})
+    )
+    await doc_with_alias.insert()
+    fetched_doc_with_alias = await DocumentWithAliasChoicesField.get(
+        doc_with_alias.id
+    )
+    assert fetched_doc_with_alias is not None
+    assert fetched_doc_with_alias.field_1 == "test_value2"

@@ -1,6 +1,6 @@
 from typing import Dict, Optional, Type, TypeVar
 
-from pydantic import BaseModel
+from pydantic import AliasChoices, BaseModel
 
 from beanie.odm.interfaces.detector import ModelType
 from beanie.odm.utils.pydantic import get_config_value, get_model_fields
@@ -32,5 +32,8 @@ def get_projection(
     document_projection: Dict[str, int] = {}
 
     for name, field in get_model_fields(model).items():
-        document_projection[field.alias or name] = 1
+        projected_field = field.alias or name
+        if isinstance(projected_field, AliasChoices):
+            projected_field = str(projected_field.choices[0])
+        document_projection[projected_field] = 1
     return document_projection

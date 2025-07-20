@@ -160,6 +160,8 @@ class Encoder:
             field_info = get_model_field(key)
             if field_info is not None:
                 key = field_info.alias or key
+            if isinstance(key, pydantic.AliasChoices):
+                key = str(key.choices[0])  # type: ignore
             if key not in exclude and (value is not None or keep_nulls):
                 yield key, value
 
